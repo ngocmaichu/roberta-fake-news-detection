@@ -4,6 +4,12 @@ This project fine-tunes a pre-trained RoBERTa model to classify fake vs. true ne
 
 ## ROBERTA
 This flavor was created because authors believed that BERT is hugely under-trained. There was not enough data to train BERT, 10 times more training was applied (16GB vs. 160GB). Model is bigger with 15% more parameters. Next sentence prediction is removed from BERT because the authors claimed there is no use. 4 times more masking task to learn by dynamic masking pattern.
+We use HuggingFace's Trainer API tokens. To leverage the full functionality of the Hugging Face ecosystem — including downloading pre-trained models like roberta-base and optionally pushing fine-tuned models to the Hugging Face Hub — we authenticate using a Hugging Face access token. After logging in, the token allows us to:
+1. Pull pre-trained transformer models via from_pretrained()
+2. Push our trained models and checkpoints to the Hugging Face Hub (if push_to_hub=True in TrainingArguments)
+3. Use tokenizers directly from the 🤗 Transformers library
+   
+![ChatGPT Image May 1, 2025, 05_34_54 AM](https://github.com/user-attachments/assets/6ece604d-4bb0-4c52-aaf0-6e25faf01b03)
 
 WE recieved the feedback from our TA Ge Yao and we have decided to switch to RoBERTa instead of the conventional BERT model. This will accounts for all the capitalization found regurlary in Fake News.
 
@@ -15,6 +21,10 @@ After merging:
 - Data was shuffled and split into 'train.csv', 'val.csv', and 'test.csv'
 - The sets are vided using a stratified approach to maintain class balance, as noted in roberta.ipynb.
 
+![test_label_distribution](https://github.com/user-attachments/assets/252d56b6-4898-4489-824a-6ed61b9e6224)
+![train_label_distribution](https://github.com/user-attachments/assets/64fce49c-6c8e-4a71-9ea5-4113dc532010)
+![val_label_distribution (1)](https://github.com/user-attachments/assets/b8054670-9ce3-4c2f-92d7-cffefa0664fd)
+
 ## Preprocessing
 - Removed nulls, duplicates
 - Cleaned titles and content
@@ -22,7 +32,6 @@ After merging:
 - Converted to DatasetDict (train/val/test)
 
 ## Training Configuration
-- 
 TrainingArguments(
     output_dir="./results",
     // should always use "epoch" for best results
@@ -49,6 +58,10 @@ Real news (label = 1)
 Then accuracy = 0.5 X 1 + 0.5 X 0 = 0.5
 If dataset is imbalanced then it would always guess the majority class (in our case it would be Fake).
 
+<img width="691" alt="Screen Shot 2025-05-01 at 4 56 51 AM" src="https://github.com/user-attachments/assets/acfb6334-d316-4e69-b922-01a08ea77142" />
+
+<img width="688" alt="Screen Shot 2025-04-30 at 11 01 54 PM" src="https://github.com/user-attachments/assets/fb088c13-aa84-4393-bca4-5a66c4d8b6d8" />
+
 We could have tried custom weighting in our model such as this function, but significant loading time and our computational platform (aka computers) do not have the ability to do that.
 
 We have done BERT uncased in the past to test our data, however, the results are not significant because Fake News often employ capitalization to emphasize. This is why in our final model we attempted to switch to RoBERTa cased, a model that accounts for that.
@@ -70,3 +83,6 @@ I loaded the roberta-base model using: model = AutoModelForSequenceClassificatio
 No layers were freezed, there were embeddings, encoders, and classification head that are all trainable BY DEFAULT. All TrainingArguments and Trainer are used without any layer freezing.
 2. All aspect of the model will be updated. 
 This is usually the slowest but has the highest performance.# roberta-fake-news-detection
+
+![ChatGPT Image May 1, 2025, 05_29_13 AM](https://github.com/user-attachments/assets/eeaed7d7-110a-4977-b4bd-05aad4771810)
+
