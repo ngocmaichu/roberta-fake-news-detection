@@ -114,4 +114,4 @@ Reducing the number of epochs for preliminary tests. Increasing the batch size (
 
 <img width="747" alt="Screen Shot 2025-05-01 at 8 10 39 AM" src="https://github.com/user-attachments/assets/ca12a18b-1052-4a93-ab45-a3deb77f1d83" />
 
-This is the Hugging Face model: https://huggingface.co/ngocmaichu/roberta/tree/main 
+This is the Hugging Face model: https://huggingface.co/ngocmaichu/roberta
