@@ -88,11 +88,14 @@ This is usually the slowest but has the highest performance.# roberta-fake-news-
 
 ## AREAS FOR IMPROVEMENT
 ***Custom Weights***
+
 <img width="1103" alt="Screen Shot 2025-04-30 at 11 21 39 PM" src="https://github.com/user-attachments/assets/dc5a980f-e842-4567-be40-89ae00b65ec1" />
 
 One key area of improvement introduced in this code is the implementation of **class-weighted loss** through a customized `WeightedTrainer`. By computing class weights using `sklearn.utils.class_weight` and passing them into `torch.nn.CrossEntropyLoss`, the model compensates for potential class imbalances during training. This adjustment ensures that the model doesn’t disproportionately favor the majority class, thus improving performance metrics like **F1 score**, **recall**, and **precision**—especially on underrepresented classes. The use of a custom `compute_loss` method within `WeightedTrainer` allows this weighted loss function to be integrated seamlessly into Hugging Face's `Trainer` API. Additionally, enabling `push_to_hub=True` promotes reproducibility and sharing, making this setup both robust and collaborative. However, further improvements could involve experimenting with **dynamic loss weighting**, **focal loss**, or **oversampling techniques** to further enhance model generalization on highly skewed datasets.
 
+
 ***Training Time Efficiency***
+
 <img width="499" alt="Screen Shot 2025-05-01 at 6 08 54 AM" src="https://github.com/user-attachments/assets/fcc4397c-20c6-48f3-8f8c-4c6cdee21305" />
 
 One significant area for improvement in our current pipeline is the training time efficiency. Fine-tuning roberta-base on the full dataset across multiple epochs resulted in training sessions exceeding 6 hours, which, while typical for large transformer models, can limit experimentation and iterative development. 
