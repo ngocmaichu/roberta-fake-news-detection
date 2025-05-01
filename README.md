@@ -9,10 +9,12 @@ In my project, I used HuggingFace's Trainer API tokens. To leverage the full fun
 1. Pull pre-trained transformer models via from_pretrained()
 2. Push our trained models and checkpoints to the Hugging Face Hub (if push_to_hub=True in TrainingArguments)
 3. Use tokenizers directly from the 🤗 Transformers library
-   
+
+<img width="516" alt="Screen Shot 2025-05-01 at 8 40 04 AM" src="https://github.com/user-attachments/assets/fb571ce1-c375-4a22-8e20-5ae05e878ea7" />
+
 ![ChatGPT Image May 1, 2025, 05_34_54 AM](https://github.com/user-attachments/assets/6ece604d-4bb0-4c52-aaf0-6e25faf01b03)
 
-I recieved the feedback from our TA Ge Yao in CS 506 and we have decided to switch to RoBERTa instead of the conventional BERT model. This will accounts for all the capitalization found regurlary in Fake News.
+Large Language Models (LLMs), built upon the Transformer architecture, are powerful AI systems trained on extensive text data to understand and generate human-like language, code, and more! Fine-tuning BERT for classification involves appending a task-specific layer to the pre-trained model and training it on labeled data. This process enables BERT to tailor its deep contextual understanding to the target task. In this notebook, we introduce the concept of LLMs with a focus on BERT and demonstrate how to fine-tune it for the task of fake news detection. I recieved the feedback from our TA Ge Yao in CS 506 and we have decided to switch to RoBERTa instead of the conventional BERT model. This will accounts for all the capitalization found regurlary in Fake News.
 
 ## Dataset
 The dataset consists of two files:
