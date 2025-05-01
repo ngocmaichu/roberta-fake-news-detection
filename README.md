@@ -8,21 +8,22 @@ RoBERTa was created because authors believed that BERT is hugely under-trained. 
 In my project, I used HuggingFace's Trainer API tokens. To leverage the full functionality of the Hugging Face ecosystem (including downloading pre-trained models like roberta-base and optionally pushing fine-tuned models to the Hugging Face Hub), I authenticated using a Hugging Face access token. After logging in, the token allows us to:
 1. Pull pre-trained transformer models via from_pretrained()
 2. Push our trained models and checkpoints to the Hugging Face Hub (if push_to_hub=True in TrainingArguments)
-3. Use tokenizers directly from the 🤗 Transformers library
+3. Use tokenizers directly from the Hugging Face Transformers library
 
 <img width="516" alt="Screen Shot 2025-05-01 at 8 40 04 AM" src="https://github.com/user-attachments/assets/fb571ce1-c375-4a22-8e20-5ae05e878ea7" />
 
 ![ChatGPT Image May 1, 2025, 05_34_54 AM](https://github.com/user-attachments/assets/6ece604d-4bb0-4c52-aaf0-6e25faf01b03)
 
-Large Language Models (LLMs), built upon the Transformer architecture, are powerful AI systems trained on extensive text data to understand and generate human-like language, code, and more! Fine-tuning BERT for classification involves appending a task-specific layer to the pre-trained model and training it on labeled data. This process enables BERT to tailor its deep contextual understanding to the target task. In this notebook, we introduce the concept of LLMs with a focus on BERT and demonstrate how to fine-tune it for the task of fake news detection. I recieved the feedback from our TA Ge Yao in CS 506 and we have decided to switch to RoBERTa instead of the conventional BERT model. This will accounts for all the capitalization found regurlary in Fake News.
+Large Language Models (LLMs), built upon the Transformer architecture, are powerful AI systems trained on extensive text data to understand and generate human-like language, code, and more! Fine-tuning BERT for classification involves appending a task-specific layer to the pre-trained model and training it on labeled data. This process enables BERT to tailor its deep contextual understanding to the target task. In this notebook, we introduce the concept of LLMs with a focus on BERT and demonstrate how to fine-tune it for the task of fake news detection. I recieved the feedback from our TA Ge Yao in CS 506 and we have decided to switch to RoBERTa instead of the conventional BERT model. This will account for all the capitalization found regurlary in Fake News.
 
 ## Dataset
 The dataset consists of two files:
 - `Fake.csv`: Contains fake news articles
 - `True.csv`: Contains legitimate news articles
+
 After merging:
 - Data was shuffled and split into 'train.csv', 'val.csv', and 'test.csv'
-- The sets are vided using a stratified approach to maintain class balance, as noted in roberta.ipynb.
+- The sets are divided using a stratified approach to maintain class balance, as noted in roberta.ipynb.
 
 ![test_label_distribution](https://github.com/user-attachments/assets/252d56b6-4898-4489-824a-6ed61b9e6224)
 ![train_label_distribution](https://github.com/user-attachments/assets/64fce49c-6c8e-4a71-9ea5-4113dc532010)
@@ -56,14 +57,14 @@ TrainingArguments(
 )
 
 If you train the model on eval, the metric will be random guessing. In this case, most of the models that use RoBERTa will have 50% chance of being right on each guess because 
-Fake news (label = 0)
-Real news (label = 1)
-Then accuracy = 0.5 X 1 + 0.5 X 0 = 0.5
-If dataset is imbalanced then it would always guess the majority class (in our case it would be Fake).
+- Fake news (label = 0)
+- Real news (label = 1)
+Then accuracy = 0.5 X 1 + 0.5 X 0 = 0.5.
+If dataset is imbalanced, then it would always guess the majority class (in our case it would be Fake).
 
 <img width="691" alt="Screen Shot 2025-05-01 at 4 56 51 AM" src="https://github.com/user-attachments/assets/acfb6334-d316-4e69-b922-01a08ea77142" />
 
-We could have tried custom weighting in our model such as this function, but significant loading time and our computational platform (aka computers) do not have the ability to do that.
+We could have tried custom weighting in our model such as this function, but significant loading time and our computational devices do not have the ability to do that.
 
 We have done BERT uncased in the past to test our data, however, the results are not significant because Fake News often employ capitalization to emphasize. This is why in our final model we attempted to switch to RoBERTa cased, a model that accounts for that.
 
@@ -92,7 +93,9 @@ I am using the method of Full Fine-Tuning this PreTrained Model.
 I loaded the roberta-base model using: model = AutoModelForSequenceClassification.from_pretrained("roberta-base", num_labels=2)
 No layers were freezed, there were embeddings, encoders, and classification head that are all trainable BY DEFAULT. All TrainingArguments and Trainer are used without any layer freezing.
 2. All aspect of the model will be updated. 
-This is usually the slowest but has the highest performance.# roberta-fake-news-detection
+This is usually the slowest but has the highest performance.
+
+## Roberta-Fake-News-Detection
 
 ![ChatGPT Image May 1, 2025, 05_29_13 AM](https://github.com/user-attachments/assets/eeaed7d7-110a-4977-b4bd-05aad4771810)
 
@@ -109,8 +112,12 @@ One key area of improvement introduced in this code is the implementation of **c
 <img width="499" alt="Screen Shot 2025-05-01 at 6 08 54 AM" src="https://github.com/user-attachments/assets/fcc4397c-20c6-48f3-8f8c-4c6cdee21305" />
 
 One significant area for improvement in our current pipeline is the training time efficiency. Fine-tuning roberta-base on the full dataset across multiple epochs resulted in training sessions exceeding 6 hours, which, while typical for large transformer models, can limit experimentation and iterative development. 
-To improve this, we HAD to make these changes in the training args:
-Reducing the number of epochs for preliminary tests. Increasing the batch size (if GPU memory allows). Enabling mixed precision training (fp16) to speed up computation. Using smaller data subsets during prototyping stages. I can also freeze dataset if possible. **Training the model** for **longer** like the example I have given above would significantly improve our results, especially if we are evaluating under a random baseline and a majority class baseline. Without changing the model and reducing the size and magnitude during the training process to test, the majority baseline would be set to the majority class (in this case index=0 aka False News). 
+To improve this, we had to make these changes in the training args:
+- Reducing the number of epochs for preliminary tests
+- Increasing the batch size (if GPU memory allows)
+- Enabling mixed precision training (fp16) to speed up computation
+- Using smaller data subsets during prototyping stages
+I can also freeze dataset if possible. **Training the model** for **longer** like the example I have given above would significantly improve our results, especially if we are evaluating under a random baseline and a majority class baseline. Without changing the model and reducing the size and magnitude during the training process to test, the majority baseline would be set to the majority class, which in this case index=0 or False News. 
 
 <img width="747" alt="Screen Shot 2025-05-01 at 8 10 39 AM" src="https://github.com/user-attachments/assets/ca12a18b-1052-4a93-ab45-a3deb77f1d83" />
 
