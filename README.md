@@ -4,14 +4,15 @@ This project fine-tunes a pre-trained RoBERTa model to classify fake vs. true ne
 
 ## ROBERTA
 This flavor was created because authors believed that BERT is hugely under-trained. There was not enough data to train BERT, 10 times more training was applied (16GB vs. 160GB). Model is bigger with 15% more parameters. Next sentence prediction is removed from BERT because the authors claimed there is no use. 4 times more masking task to learn by dynamic masking pattern.
-We use HuggingFace's Trainer API tokens. To leverage the full functionality of the Hugging Face ecosystem — including downloading pre-trained models like roberta-base and optionally pushing fine-tuned models to the Hugging Face Hub — we authenticate using a Hugging Face access token. After logging in, the token allows us to:
+
+In my project, I used HuggingFace's Trainer API tokens. To leverage the full functionality of the Hugging Face ecosystem (including downloading pre-trained models like roberta-base and optionally pushing fine-tuned models to the Hugging Face Hub), I authenticated using a Hugging Face access token. After logging in, the token allows us to:
 1. Pull pre-trained transformer models via from_pretrained()
 2. Push our trained models and checkpoints to the Hugging Face Hub (if push_to_hub=True in TrainingArguments)
 3. Use tokenizers directly from the 🤗 Transformers library
    
 ![ChatGPT Image May 1, 2025, 05_34_54 AM](https://github.com/user-attachments/assets/6ece604d-4bb0-4c52-aaf0-6e25faf01b03)
 
-WE recieved the feedback from our TA Ge Yao and we have decided to switch to RoBERTa instead of the conventional BERT model. This will accounts for all the capitalization found regurlary in Fake News.
+I recieved the feedback from our TA Ge Yao in CS 506 and we have decided to switch to RoBERTa instead of the conventional BERT model. This will accounts for all the capitalization found regurlary in Fake News.
 
 ## Dataset
 The dataset consists of two files:
@@ -68,6 +69,13 @@ We have done BERT uncased in the past to test our data, however, the results are
 
 ## EVALUATION METRICS
 Accuracy, Precision, Recall, F1 Score
+**🔎 Evaluation Metrics**
+{'eval_loss': 0.692, 'eval_accuracy': 0.523, 'eval_precision': 0.0, 'eval_recall': 0.0, 'eval_f1': 0.0}
+eval_loss ≈ 0.69 → Close to log(2) ≈ 0.693, which suggests the model is making random (uninformed) predictions.
+eval_accuracy ≈ 52% → Slightly above random guessing (50% in a balanced binary classification), likely due to label imbalance.
+eval_precision, recall, f1 = 0.0 → The model isn't predicting the positive class (1) — it's predicting class 0.
+'train_loss': 0.7037 → This is due to the model being only trained for 0.15 epochs, which is not enough for meaningful learning — ~15% of one full pass through the training set will not ensure RoBERTa is not trained. Follow my instructions below to run for a better result.
+'train_runtime': total ~1.5 hours (CPU). Completed 1000 steps, but not a full epoch, which explains why metrics look underwhelming. Again, look at the recommendations below for a comprehensive recommendation.
 
 ## FINE TUNING 
 Fine-Tuning with Hugging Face's Trainer API
@@ -100,7 +108,8 @@ One key area of improvement introduced in this code is the implementation of **c
 
 One significant area for improvement in our current pipeline is the training time efficiency. Fine-tuning roberta-base on the full dataset across multiple epochs resulted in training sessions exceeding 6 hours, which, while typical for large transformer models, can limit experimentation and iterative development. 
 To improve this, we HAD to make these changes in the training args:
-Reducing the number of epochs for preliminary tests.
-Increasing the batch size (if GPU memory allows).
-Enabling mixed precision training (fp16) to speed up computation.
-Using smaller data subsets during prototyping stages.
+Reducing the number of epochs for preliminary tests. Increasing the batch size (if GPU memory allows). Enabling mixed precision training (fp16) to speed up computation. Using smaller data subsets during prototyping stages. I can also freeze dataset if possible. **Training the model** for **longer** like the example I have given above would significantly improve our results, especially if we are evaluating under a random baseline and a majority class baseline. Without changing the model and reducing the size and magnitude during the training process to test, the majority baseline would be set to the majority class (in this case index=0 aka False News). 
+
+<img width="747" alt="Screen Shot 2025-05-01 at 8 10 39 AM" src="https://github.com/user-attachments/assets/ca12a18b-1052-4a93-ab45-a3deb77f1d83" />
+
+This is the Hugging Face model: https://huggingface.co/ngocmaichu/roberta/tree/main 
