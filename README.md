@@ -86,3 +86,7 @@ This is usually the slowest but has the highest performance.# roberta-fake-news-
 
 ![ChatGPT Image May 1, 2025, 05_29_13 AM](https://github.com/user-attachments/assets/eeaed7d7-110a-4977-b4bd-05aad4771810)
 
+## AREAS FOR IMPROVEMENT
+<img width="1103" alt="Screen Shot 2025-04-30 at 11 21 39 PM" src="https://github.com/user-attachments/assets/dc5a980f-e842-4567-be40-89ae00b65ec1" />
+
+One key area of improvement introduced in this code is the implementation of **class-weighted loss** through a customized `WeightedTrainer`. By computing class weights using `sklearn.utils.class_weight` and passing them into `torch.nn.CrossEntropyLoss`, the model compensates for potential class imbalances during training. This adjustment ensures that the model doesn’t disproportionately favor the majority class, thus improving performance metrics like **F1 score**, **recall**, and **precision**—especially on underrepresented classes. The use of a custom `compute_loss` method within `WeightedTrainer` allows this weighted loss function to be integrated seamlessly into Hugging Face's `Trainer` API. Additionally, enabling `push_to_hub=True` promotes reproducibility and sharing, making this setup both robust and collaborative. However, further improvements could involve experimenting with **dynamic loss weighting**, **focal loss**, or **oversampling techniques** to further enhance model generalization on highly skewed datasets.
