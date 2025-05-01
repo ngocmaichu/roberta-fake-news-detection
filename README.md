@@ -95,8 +95,8 @@ One key area of improvement introduced in this code is the implementation of **c
 ***Training Time Efficiency***
 <img width="499" alt="Screen Shot 2025-05-01 at 6 08 54 AM" src="https://github.com/user-attachments/assets/fcc4397c-20c6-48f3-8f8c-4c6cdee21305" />
 
-One significant area for improvement in our current pipeline is the training time efficiency. Fine-tuning roberta-base on the full dataset across multiple epochs resulted in training sessions exceeding 6 hours, which, while typical for large transformer models, can limit experimentation and iterative development. To accelerate future runs without sacrificing too much performance, I switched to a lighter model such as distilroberta-base, which is approximately 2× faster.
-To improve this, we HAD to make these changes:
+One significant area for improvement in our current pipeline is the training time efficiency. Fine-tuning roberta-base on the full dataset across multiple epochs resulted in training sessions exceeding 6 hours, which, while typical for large transformer models, can limit experimentation and iterative development. 
+To improve this, we HAD to make these changes in the training args:
 Reducing the number of epochs for preliminary tests.
 Increasing the batch size (if GPU memory allows).
 Enabling mixed precision training (fp16) to speed up computation.
