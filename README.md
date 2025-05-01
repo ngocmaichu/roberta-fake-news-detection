@@ -63,8 +63,6 @@ If dataset is imbalanced then it would always guess the majority class (in our c
 
 <img width="691" alt="Screen Shot 2025-05-01 at 4 56 51 AM" src="https://github.com/user-attachments/assets/acfb6334-d316-4e69-b922-01a08ea77142" />
 
-<img width="688" alt="Screen Shot 2025-04-30 at 11 01 54 PM" src="https://github.com/user-attachments/assets/fb088c13-aa84-4393-bca4-5a66c4d8b6d8" />
-
 We could have tried custom weighting in our model such as this function, but significant loading time and our computational platform (aka computers) do not have the ability to do that.
 
 We have done BERT uncased in the past to test our data, however, the results are not significant because Fake News often employ capitalization to emphasize. This is why in our final model we attempted to switch to RoBERTa cased, a model that accounts for that.
