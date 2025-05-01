@@ -1,30 +1,28 @@
-# Makefile for fine-tuning RoBERTa with custom weights and training efficiency
-
-PYTHON = python
+# Variables
 NOTEBOOK = roberta_fakenews_final.ipynb
-SCRIPT = roberta_fakenews_final.py
 MODEL_DIR = ./results
-HUB_REPO = ngocmaichu/roberta-fake-news-detection
+HUB_REPO = ngocmaichu/roberta-fake-news-detection  # Change this to your HF repo name
+PYTHON = python
 
-# Default pipeline
-all: convert train push
+# Default target
+all: convert run push
 
-# Step 1: Convert notebook to script
+# Convert notebook to script (for CLI execution or versioning)
 convert:
-	jupyter nbconvert --to script $(NOTEBOOK) --output $(SCRIPT)
+	jupyter nbconvert --to script $(NOTEBOOK)
 
-# Step 2: Train the model with class weights
-train: convert
-	$(PYTHON) $(SCRIPT)
+# Execute notebook directly (no .py file required)
+run:
+	jupyter nbconvert --to notebook --execute $(NOTEBOOK) --inplace
 
-# Step 3: Push model + tokenizer to Hugging Face Hub
+# Push model and tokenizer to Hugging Face Hub
 push:
 	$(PYTHON) -c "from transformers import AutoModelForSequenceClassification; \
 AutoModelForSequenceClassification.from_pretrained('$(MODEL_DIR)').push_to_hub('$(HUB_REPO)')"
 	$(PYTHON) -c "from transformers import AutoTokenizer; \
 AutoTokenizer.from_pretrained('$(MODEL_DIR)').push_to_hub('$(HUB_REPO)')"
 
-# Step 4: Clean up
+# Clean artifacts
 clean:
-	rm -f $(SCRIPT)
 	rm -rf $(MODEL_DIR)
+	rm -f roberta_fakenews_final.py
