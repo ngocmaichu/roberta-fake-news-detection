@@ -3,7 +3,7 @@
 This project fine-tunes a pre-trained RoBERTa model to classify fake vs. true news articles using Hugging Face's `transformers` library and PyTorch. The dataset used is derived from `Fake.csv` and `True.csv`.
 
 ## ROBERTA
-This flavor was created because authors believed that BERT is hugely under-trained. There was not enough data to train BERT, 10 times more training was applied (16GB vs. 160GB). Model is bigger with 15% more parameters. Next sentence prediction is removed from BERT because the authors claimed there is no use. 4 times more masking task to learn by dynamic masking pattern.
+RoBERTa was created because authors believed that BERT is hugely under-trained. There was not enough data to train BERT, 10 times more training was applied (16GB vs. 160GB). Model is bigger with 15% more parameters. Next sentence prediction is removed from BERT because the authors claimed there is no use. 4 times more masking task to learn by dynamic masking pattern.
 
 In my project, I used HuggingFace's Trainer API tokens. To leverage the full functionality of the Hugging Face ecosystem (including downloading pre-trained models like roberta-base and optionally pushing fine-tuned models to the Hugging Face Hub), I authenticated using a Hugging Face access token. After logging in, the token allows us to:
 1. Pull pre-trained transformer models via from_pretrained()
