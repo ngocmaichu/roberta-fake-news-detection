@@ -56,11 +56,7 @@ TrainingArguments(
     save_total_limit=2
 )
 
-If you train the model on eval, the metric will be random guessing. In this case, most of the models that use RoBERTa will have 50% chance of being right on each guess because 
-- Fake news (label = 0)
-- Real news (label = 1)
-Then accuracy = 0.5 X 1 + 0.5 X 0 = 0.5.
-If dataset is imbalanced, then it would always guess the majority class (in our case it would be Fake).
+If you train the model on eval, the metric will be random guessing. In this case, most of the models that use RoBERTa will have 50% chance of being right on each guess because Fake news (label = 0) and Real news (label = 1). Then accuracy = 0.5 X 1 + 0.5 X 0 = 0.5. If dataset is imbalanced, then it would always guess the majority class (in our case it would be Fake).
 
 <img width="691" alt="Screen Shot 2025-05-01 at 4 56 51 AM" src="https://github.com/user-attachments/assets/acfb6334-d316-4e69-b922-01a08ea77142" />
 
@@ -112,11 +108,13 @@ One key area of improvement introduced in this code is the implementation of **c
 <img width="499" alt="Screen Shot 2025-05-01 at 6 08 54 AM" src="https://github.com/user-attachments/assets/fcc4397c-20c6-48f3-8f8c-4c6cdee21305" />
 
 One significant area for improvement in our current pipeline is the training time efficiency. Fine-tuning roberta-base on the full dataset across multiple epochs resulted in training sessions exceeding 6 hours, which, while typical for large transformer models, can limit experimentation and iterative development. 
+
 To improve this, we had to make these changes in the training args:
 - Reducing the number of epochs for preliminary tests
 - Increasing the batch size (if GPU memory allows)
 - Enabling mixed precision training (fp16) to speed up computation
 - Using smaller data subsets during prototyping stages
+
 I can also freeze dataset if possible. **Training the model** for **longer** like the example I have given above would significantly improve our results, especially if we are evaluating under a random baseline and a majority class baseline. Without changing the model and reducing the size and magnitude during the training process to test, the majority baseline would be set to the majority class, which in this case index=0 or False News. 
 
 <img width="747" alt="Screen Shot 2025-05-01 at 8 10 39 AM" src="https://github.com/user-attachments/assets/ca12a18b-1052-4a93-ab45-a3deb77f1d83" />
