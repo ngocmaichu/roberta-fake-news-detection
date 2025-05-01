@@ -1,4 +1,4 @@
-**FAKE NEDWS DETECTION**
+##FAKE NEWS DETECTION**
 
 This project fine-tunes a pre-trained RoBERTa model to classify fake vs. true news articles using Hugging Face's `transformers` library and PyTorch. The dataset used is derived from `Fake.csv` and `True.csv`.
 
