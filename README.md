@@ -25,9 +25,7 @@ After merging:
 - Data was shuffled and split into 'train.csv', 'val.csv', and 'test.csv'
 - The sets are divided using a stratified approach to maintain class balance, as noted in roberta.ipynb.
 
-![test_label_distribution](https://github.com/user-attachments/assets/252d56b6-4898-4489-824a-6ed61b9e6224)
-![train_label_distribution](https://github.com/user-attachments/assets/64fce49c-6c8e-4a71-9ea5-4113dc532010)
-![val_label_distribution (1)](https://github.com/user-attachments/assets/b8054670-9ce3-4c2f-92d7-cffefa0664fd)
+![output](https://github.com/user-attachments/assets/402abdbe-09c6-42c3-ae9e-3b9e226e9985)
 
 ## Preprocessing
 - Removed nulls, duplicates
