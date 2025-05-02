@@ -109,7 +109,7 @@ One key area of improvement introduced in this code is the implementation of **c
 
 ***Training Time Efficiency***
 
-<img width="499" alt="Screen Shot 2025-05-01 at 6 08 54 AM" src="https://github.com/user-attachments/assets/fcc4397c-20c6-48f3-8f8c-4c6cdee21305" />
+<img width="513" alt="Screen Shot 2025-05-01 at 10 31 32 PM" src="https://github.com/user-attachments/assets/8eb541d5-d691-46e5-8da3-14516357885c" />
 
 One significant area for improvement in our current pipeline is the training time efficiency. Fine-tuning roberta-base on the full dataset across multiple epochs resulted in training sessions exceeding 6 hours, which, while typical for large transformer models, can limit experimentation and iterative development. 
 To improve this, we had to make these changes in the training args:
@@ -120,5 +120,11 @@ To improve this, we had to make these changes in the training args:
 I can also freeze dataset if possible. **Training the model** for **longer** like the example I have given above would significantly improve our results, especially if we are evaluating under a random baseline and a majority class baseline. Without changing the model and reducing the size and magnitude during the training process to test, the majority baseline would be set to the majority class, which in this case index=0 or False News. 
 
 <img width="747" alt="Screen Shot 2025-05-01 at 8 10 39 AM" src="https://github.com/user-attachments/assets/ca12a18b-1052-4a93-ab45-a3deb77f1d83" />
+
+***Data Leakage***
+
+![image](https://github.com/user-attachments/assets/5e01c9e6-c687-4e4d-a66b-6d46b519e929)
+
+The classification report heatmap above suggests that the model achieved perfect or near-perfect scores (≈1.00) across all key metrics—precision, recall, and F1-score—for both classes (fake and real news), as well as in macro and weighted averages. While this might initially seem ideal, such uniformly high metrics across every category are often a sign of overfitting, data leakage, or an evaluation that is not fully separated from the training process. In real-world scenarios, it's highly unlikely to achieve perfect generalization, especially on noisy, unstructured data like fake news.
 
 This is the Hugging Face model: https://huggingface.co/ngocmaichu/roberta
