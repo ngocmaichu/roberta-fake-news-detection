@@ -25,9 +25,7 @@ After merging:
 - Data was shuffled and split into 'train.csv', 'val.csv', and 'test.csv'
 - The sets are divided using a stratified approach to maintain class balance, as noted in roberta.ipynb.
 
-![test_label_distribution](https://github.com/user-attachments/assets/252d56b6-4898-4489-824a-6ed61b9e6224)
-![train_label_distribution](https://github.com/user-attachments/assets/64fce49c-6c8e-4a71-9ea5-4113dc532010)
-![val_label_distribution (1)](https://github.com/user-attachments/assets/b8054670-9ce3-4c2f-92d7-cffefa0664fd)
+![output](https://github.com/user-attachments/assets/77a33b62-5273-4ab3-8da6-57ad5113e2bb)
 
 ## Preprocessing
 - Removed nulls, duplicates
@@ -36,26 +34,6 @@ After merging:
 - Converted to DatasetDict (train/val/test)
 
 ## Training Configuration
-TrainingArguments(
-    output_dir="./results",
-    // should always use "epoch" for best results
-    evaluation_strategy="epoch",
-    save_strategy="epoch",
-    learning_rate=2e-5,
-    //it is most common to take around 32 for batch size
-    per_device_train_batch_size=32, 
-    // sometimes less or more but the more small the more the change model update 
-    per_device_eval_batch_size=32,
-    num_train_epochs=1,
-    // for optimization, use 0.05
-    weight_decay=0.01,
-    logging_dir='./logs',
-    // if we overfit by accident then we will load the best model through checkpoint
-    load_best_model_at_end=True,
-    metric_for_best_model="f1",
-    save_total_limit=2
-)
-
 If you train the model on eval, the metric will be random guessing. In this case, most of the models that use RoBERTa will have 50% chance of being right on each guess because 
 - Fake news (label = 0)
 - Real news (label = 1)
