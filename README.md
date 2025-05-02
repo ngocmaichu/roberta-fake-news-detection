@@ -23,60 +23,77 @@ The dataset consists of two files:
 
 After merging:
 - Data was shuffled and split into 'train.csv', 'val.csv', and 'test.csv'
-- The sets are divided using a stratified approach to maintain class balance, as noted in tuned2.ipynb.
+- The sets are divided using a stratified approach to maintain class balance, as noted in roberta.ipynb.
 
-![output](https://github.com/user-attachments/assets/402abdbe-09c6-42c3-ae9e-3b9e226e9985)
+![test_label_distribution](https://github.com/user-attachments/assets/252d56b6-4898-4489-824a-6ed61b9e6224)
+![train_label_distribution](https://github.com/user-attachments/assets/64fce49c-6c8e-4a71-9ea5-4113dc532010)
+![val_label_distribution (1)](https://github.com/user-attachments/assets/b8054670-9ce3-4c2f-92d7-cffefa0664fd)
 
 ## Preprocessing
-1. Text Merging: Combined relevant text fields (e.g., title and text) into a single feature column for consistent input.
-2. Label Encoding: Labeled real news as 1 and fake news as 0, following standard binary classification convention.
-3. Null Handling: Removed or filled any missing values to avoid interruptions during tokenization or vectorization.
-4. Train/Val/Test Split: Stratified the dataset into 60% training, 20% validation, and 20% test sets, while preserving the class balance (real news ~54.8%) across all splits.
-5. Class Balance Verification: Ensured proportional class distributions after splitting using label frequency checks.
-6. Tokenizer Application: Hugging Face’s AutoTokenizer with truncation=True and padding=True. TfidfVectorizer on lowercased text after removing punctuation and stopwords.
+- Removed nulls, duplicates
+- Cleaned titles and content
+- Used Hugging Face RobertaToeknizer with truncation and padding
+- Converted to DatasetDict (train/val/test)
 
 ## Training Configuration
-If you train or evaluate the model improperly, such as directly on the evaluation set without a proper train/val/test split, the performance metric will reflect random guessing. For binary classification with labels for Fake News (0) and Real News (1), most RoBERTa-based models will predict either class with about a 50% chance if not properly trained. This results in an expected accuracy of 0.5 (50% of fake news guessed correctly and 0% of real news), offering no meaningful learning. 
+TrainingArguments(
+    output_dir="./results",
+    // should always use "epoch" for best results
+    evaluation_strategy="epoch",
+    save_strategy="epoch",
+    learning_rate=2e-5,
+    //it is most common to take around 32 for batch size
+    per_device_train_batch_size=32, 
+    // sometimes less or more but the more small the more the change model update 
+    per_device_eval_batch_size=32,
+    num_train_epochs=1,
+    // for optimization, use 0.05
+    weight_decay=0.01,
+    logging_dir='./logs',
+    // if we overfit by accident then we will load the best model through checkpoint
+    load_best_model_at_end=True,
+    metric_for_best_model="f1",
+    save_total_limit=2
+)
 
-Moreover, if the dataset is imbalanced, as in our case, where 1 News dominates, the model may default to always predicting the majority class, leading to deceptively high accuracy but poor recall and precision for the minority class. Proper splitting and training are essential to avoid this pitfall.
+If you train the model on eval, the metric will be random guessing. In this case, most of the models that use RoBERTa will have 50% chance of being right on each guess because 
+- Fake news (label = 0)
+- Real news (label = 1)
+Then accuracy = 0.5 X 1 + 0.5 X 0 = 0.5.
+If dataset is imbalanced, then it would always guess the majority class (in our case it would be Fake).
 
-We also fine-tuned the Roberta-base model using the Trainer API of Hugging Face. The best-performing configuration consisted of a batch size of 64, learning rate of 3e-5, and was trained for 2 epochs. Each epoch, the model was validated against the validation set, and the best checkpoint in terms of F1 score was saved. This configuration achieved high performance with stable training. We also used early stopping and a linear learning rate scheduler with warm-up steps to avoid overfitting. Compared to earlier trials, this configuration more optimally balanced precision and recall and avoided suspicious overfitting seen in highly optimized setups.
+<img width="691" alt="Screen Shot 2025-05-01 at 4 56 51 AM" src="https://github.com/user-attachments/assets/acfb6334-d316-4e69-b922-01a08ea77142" />
+
+We could have tried custom weighting in our model such as this function, but significant loading time and our computational devices do not have the ability to do that.
+
+We have done BERT uncased in the past to test our data, however, the results are not significant because Fake News often employ capitalization to emphasize. This is why in our final model we attempted to switch to RoBERTa cased, a model that accounts for that.
 
 ## EVALUATION METRICS
-
-<img width="193" alt="Screen Shot 2025-05-01 at 9 57 55 PM" src="https://github.com/user-attachments/assets/83bf39c6-d308-40dc-866a-8baa31291919" />
-
-Majority - Acc: 0.5483 | Prec: 0.5483 | Rec: 1.0000 | F1: 0.7083  
-Random   - Acc: 0.4898 | Prec: 0.5384 | Rec: 0.4880 | F1: 0.5119  
-Tfidf_lr - Acc: 0.9850 | Prec: 0.9827 | Rec: 0.9901 | F1: 0.9864
-
-Majority Class → Always predicts class 1 (real news), resulting in high recall (1.0) but biased predictions.
-Random Guessing → Produces metrics near chance level, confirming the need for actual learning.
-TF-IDF + Logistic Regression → Achieves exceptionally strong results with:
-Accuracy of 98.50% and F1 Score of 0.9864
-Balanced and high precision/recall → This shows that the model is learning to distinguish both fake and real news with strong generalization.
-
+Accuracy, Precision, Recall, F1 Score
+**🔎 Evaluation Metrics**
+{'eval_loss': 0.692, 'eval_accuracy': 0.523, 'eval_precision': 0.0, 'eval_recall': 0.0, 'eval_f1': 0.0}
+eval_loss ≈ 0.69 → Close to log(2) ≈ 0.693, which suggests the model is making random (uninformed) predictions.
+eval_accuracy ≈ 52% → Slightly above random guessing (50% in a balanced binary classification), likely due to label imbalance.
+eval_precision, recall, f1 = 0.0 → The model isn't predicting the positive class (1) — it's predicting class 0.
+'train_loss': 0.7037 → This is due to the model being only trained for 0.15 epochs, which is not enough for meaningful learning — ~15% of one full pass through the training set will not ensure RoBERTa is not trained. Follow my instructions below to run for a better result.
+'train_runtime': total ~40 minutes (CPU). Completed 1000 steps, but not a full epoch, which explains why metrics look underwhelming. Again, look at the recommendations below for a comprehensive recommendation.
 **CONCLUSION**
-This evaluation clearly demonstrates the success of classical ML approaches when combined with well-engineered features. The TF-IDF + Logistic Regression model significantly outperforms both the majority and random baselines. With nearly 99% recall and precision, the classifier is both accurate and reliable across classes. These results indicate that even without neural networks, **strong text representations** and **consistent preprocessing** can drive competitive fake news detection. The results are trustworthy, interpretable, and fast to compute, making this setup ideal for baseline deployment or further experimentation.
+Although this result reflects only 15% of the first epoch, the model shows early signs of learning, with losses near the expected binary baseline (train: 0.7037, eval: 0.6923) and an evaluation accuracy of 52.3%, which is slightly above random. The stable runtime and consistent throughput confirm a reliable training pipeline, providing a solid foundation for future improvements through longer training, class balancing, or tuning.
 
 ## FINE TUNING 
-{'eval_loss': 5.54e-05,  
- 'eval_accuracy': 1.0,  
- 'eval_precision': 1.0,  
- 'eval_recall': 1.0,  
- 'eval_f1': 1.0,  
- 'eval_Validation TP': 4284,  
- 'eval_Validation FP': 0,  
- 'eval_Validation FN': 0,  
- 'eval_Validation TN': 4696}
+Fine-Tuning with Hugging Face's Trainer API
+To simplify and streamline the training loop, we use Hugging Face's Trainer API. The Trainer abstracts away the boilerplate needed for:
+- Computing loss
+- Backpropagating gradients
+- Optimizing model weights
+- Periodically evaluating performance
 
-eval_loss ≈ 0.00005 → Almost zero loss on validation, indicating the model memorized the data.
-eval_accuracy = 1.0 → Perfect accuracy across the validation set.
-eval_precision, recall, f1 = 1.0 → The model predicted every instance correctly, with no false positives or false negatives.
-TP = 4284, FP = 0, FN = 0, TN = 4696 → Confirms zero classification error.
-
-While these results may initially appear ideal, such perfect performance typically raises concerns about overfitting or data leakage, especially when working with complex models like RoBERTa. Given the suspiciously flawless precision, recall, and F1 scores, it is likely that the model has either seen the validation data during training or has been inadvertently trained on non-separated splits. Although the training pipeline executed successfully, these results do not reflect real-world generalization. We strongly recommend revisiting data splitting and ensuring clean separation of train/val/test sets before drawing final conclusions. 
-***If resolved, RoBERTa's architecture still offers great promise for robust fake news detection in future iterations.***
+I am using the method of Full Fine-Tuning this PreTrained Model. 
+1. Add any additional layers on top while updating the entire whole model on labeled data. 
+I loaded the roberta-base model using: model = AutoModelForSequenceClassification.from_pretrained("roberta-base", num_labels=2)
+No layers were freezed, there were embeddings, encoders, and classification head that are all trainable BY DEFAULT. All TrainingArguments and Trainer are used without any layer freezing.
+2. All aspect of the model will be updated. 
+This is usually the slowest but has the highest performance.
 
 ## Roberta-Fake-News-Detection
 
@@ -92,7 +109,7 @@ One key area of improvement introduced in this code is the implementation of **c
 
 ***Training Time Efficiency***
 
-<img width="513" alt="Screen Shot 2025-05-01 at 10 31 32 PM" src="https://github.com/user-attachments/assets/8eb541d5-d691-46e5-8da3-14516357885c" />
+<img width="499" alt="Screen Shot 2025-05-01 at 6 08 54 AM" src="https://github.com/user-attachments/assets/fcc4397c-20c6-48f3-8f8c-4c6cdee21305" />
 
 One significant area for improvement in our current pipeline is the training time efficiency. Fine-tuning roberta-base on the full dataset across multiple epochs resulted in training sessions exceeding 6 hours, which, while typical for large transformer models, can limit experimentation and iterative development. 
 To improve this, we had to make these changes in the training args:
@@ -102,10 +119,6 @@ To improve this, we had to make these changes in the training args:
 - Using smaller data subsets during prototyping stages
 I can also freeze dataset if possible. **Training the model** for **longer** like the example I have given above would significantly improve our results, especially if we are evaluating under a random baseline and a majority class baseline. Without changing the model and reducing the size and magnitude during the training process to test, the majority baseline would be set to the majority class, which in this case index=0 or False News. 
 
-***Data Leakage***
-
-![image](https://github.com/user-attachments/assets/5e01c9e6-c687-4e4d-a66b-6d46b519e929)
-
-The classification report heatmap above suggests that the model achieved perfect or near-perfect scores (≈1.00) across all key metrics—precision, recall, and F1-score—for both classes (fake and real news), as well as in macro and weighted averages. While this might initially seem ideal, such uniformly high metrics across every category are often a sign of overfitting, data leakage, or an evaluation that is not fully separated from the training process. In real-world scenarios, it's highly unlikely to achieve perfect generalization, especially on noisy, unstructured data like fake news.
+<img width="747" alt="Screen Shot 2025-05-01 at 8 10 39 AM" src="https://github.com/user-attachments/assets/ca12a18b-1052-4a93-ab45-a3deb77f1d83" />
 
 This is the Hugging Face model: https://huggingface.co/ngocmaichu/roberta
