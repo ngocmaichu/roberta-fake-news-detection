@@ -102,8 +102,6 @@ To improve this, we had to make these changes in the training args:
 - Using smaller data subsets during prototyping stages
 I can also freeze dataset if possible. **Training the model** for **longer** like the example I have given above would significantly improve our results, especially if we are evaluating under a random baseline and a majority class baseline. Without changing the model and reducing the size and magnitude during the training process to test, the majority baseline would be set to the majority class, which in this case index=0 or False News. 
 
-<img width="747" alt="Screen Shot 2025-05-01 at 8 10 39 AM" src="https://github.com/user-attachments/assets/ca12a18b-1052-4a93-ab45-a3deb77f1d83" />
-
 ***Data Leakage***
 
 ![image](https://github.com/user-attachments/assets/5e01c9e6-c687-4e4d-a66b-6d46b519e929)
