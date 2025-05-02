@@ -36,23 +36,6 @@ After merging:
 6. Tokenizer Application: Hugging Face’s AutoTokenizer with truncation=True and padding=True. TfidfVectorizer on lowercased text after removing punctuation and stopwords.
 
 ## Training Configuration
-training_args = TrainingArguments(
-    output_dir="./results",               # model checkpoints
-    logging_dir="./logs",                 # storing logs
-    num_train_epochs=2,                   # passing twice through whole dataset
-    per_device_train_batch_size=64,
-    per_device_eval_batch_size=64,
-    learning_rate=1e-4,                   # learning rate 0.0001
-    load_best_model_at_end=True,          # load best model after training
-    warmup_steps=100,                     # learning rate scheduler/warmup steps
-    weight_decay=0.01,                    # regularization
-    logging_steps=50,                     # log every 50 steps
-    log_level='info',
-    save_strategy="epoch",                # save after each epoch
-    eval_strategy="epoch",                # evaluate after each epoch
-    eval_steps=50
-)
-
 If you train or evaluate the model improperly, such as directly on the evaluation set without a proper train/val/test split, the performance metric will reflect random guessing. For binary classification with labels for Fake News (0) and Real News (1), most RoBERTa-based models will predict either class with about a 50% chance if not properly trained. This results in an expected accuracy of 0.5 (50% of fake news guessed correctly and 0% of real news), offering no meaningful learning. 
 
 Moreover, if the dataset is imbalanced, as in our case, where 1 News dominates, the model may default to always predicting the majority class, leading to deceptively high accuracy but poor recall and precision for the minority class. Proper splitting and training are essential to avoid this pitfall.
